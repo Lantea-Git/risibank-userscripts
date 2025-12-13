@@ -1,0 +1,36 @@
+name: Build Risibank JS
+#.github/workflows/build-risibank.yml
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout current branch
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build userscript
+        run: npm run build
+
+      - name: Commit build output
+        run: |
+          cp dist/*/*.user.js .
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add -f *.user.js
+          git commit -m "Build userscript" || true
+          git push
